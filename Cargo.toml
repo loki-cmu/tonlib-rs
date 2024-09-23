@@ -1,11 +1,8 @@
 [workspace]
 members = [
     "core",
-    "client",
 ]
-
 resolver = "2"
-
 
 [workspace.package]
 version = "0.19.1"
@@ -14,42 +11,18 @@ description = "Rust SDK for The Open Network"
 license = "MIT"
 repository = "https://github.com/ston-fi/tonlib-rs"
 
-
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [workspace.dependencies]
-anyhow = "1"
-async-trait = "0.1"
 base64 = "0.22"
-base64-serde = "0.7"
 bitstream-io = "2.2"
 crc = "3"
-dashmap = "5"
-futures = "0.3"
 hex = "0.4"
-hmac = {version = "0.12", features = ["std"]}
+hmac = { version = "0.12", features = ["std"] }
 lazy_static = "1"
-log = "0.4"
-log4rs = "1"
-moka = { version = "0.12", features = ["future"] }
 nacl = "0.5"
 num-bigint = { version = "0.4", features = ["serde"] }
 num-traits = "0.2"
-rand = "0.8"
 serde = { version = "1", features = ["derive"] }
-serde-aux = "4"
 serde_json = "1"
 sha2 = "0.10"
-strum = { version = "0.26", features = ["derive"] }
-pbkdf2 = { version="0.12", features = ["simple"] }
-reqwest = "0.12"
+pbkdf2 = { version = "0.12", features = ["simple"] }
 thiserror = "1"
-tokio = { version = "1", features = ["rt","macros"] }
-tokio-retry = "0.3"
-tokio-test = "0.4"
-tonlib-sys = "=2024.8.0"
-
-# internal deps
-tonlib-core = { version = "0" }
-

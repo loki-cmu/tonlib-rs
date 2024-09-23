@@ -165,6 +165,56 @@ impl WalletVersion {
         Ok(Arc::new(data_cell))
     }
 
+    pub fn initial_data_by_public_key(
+        &self,
+        public_key: &[u8],
+        wallet_id: i32,
+    ) -> Result<ArcCell, TonCellError> {
+        let public_key: TonHash = public_key
+            .try_into()
+            .map_err(|_| TonCellError::InternalError("Invalid public key size".to_string()))?;
+
+        let data_cell: Cell = match &self {
+            WalletVersion::V1R1
+            | WalletVersion::V1R2
+            | WalletVersion::V1R3
+            | WalletVersion::V2R1
+            | WalletVersion::V2R2 => WalletDataV1V2 {
+                seqno: 0,
+                public_key,
+            }
+            .try_into()?,
+            WalletVersion::V3R1 | WalletVersion::V3R2 => WalletDataV3 {
+                seqno: 0,
+                wallet_id,
+                public_key,
+            }
+            .try_into()?,
+            WalletVersion::V4R1 | WalletVersion::V4R2 => WalletDataV4 {
+                seqno: 0,
+                wallet_id,
+                public_key,
+            }
+            .try_into()?,
+            WalletVersion::HighloadV2R2 => WalletDataHighloadV2R2 {
+                wallet_id,
+                last_cleaned_time: 0,
+                public_key,
+            }
+            .try_into()?,
+            WalletVersion::HighloadV1R1
+            | WalletVersion::HighloadV1R2
+            | WalletVersion::HighloadV2
+            | WalletVersion::HighloadV2R1 => {
+                return Err(TonCellError::InternalError(
+                    "No generation for this wallet version".to_string(),
+                ));
+            }
+        };
+
+        Ok(Arc::new(data_cell))
+    }
+
     pub fn has_op(&self) -> bool {
         matches!(self, WalletVersion::V4R2)
     }
@@ -299,12 +349,33 @@ impl TonWallet {
         wrap_builder.store_child(signed_body)?;
         Ok(wrap_builder.build()?)
     }
+
+    pub fn derive_address(
+        workchain: i32,
+        version: WalletVersion,
+        public_key: &[u8],
+        wallet_id: i32,
+    ) -> Result<TonAddress, TonCellError> {
+        let data = version.initial_data_by_public_key(public_key, wallet_id)?;
+        let code = version.code()?;
+        let state_init_hash = StateInit::create_account_id(code, &data)?;
+        let hash_part = match state_init_hash.as_slice().try_into() {
+            Ok(hash_part) => hash_part,
+            Err(_) => {
+                return Err(TonCellError::InternalError(
+                    "StateInit returned hash pof wrong size".to_string(),
+                ))
+            }
+        };
+        let addr = TonAddress::new(workchain, &hash_part);
+        Ok(addr)
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use crate::mnemonic::{Mnemonic, MnemonicError};
-    use crate::wallet::{TonWallet, WalletVersion};
+    use crate::wallet::{TonWallet, WalletVersion, DEFAULT_WALLET_ID};
     use crate::TonAddress;
 
     #[test]
@@ -330,5 +401,26 @@ mod tests {
             .unwrap();
         assert_eq!(wallet_v4r2.address, expected_v4r2);
         Ok(())
+    }
+
+    #[test]
+    fn test_derive_address() {
+        let public_key: &[u8] = &[
+            255, 15, 68, 27, 88, 255, 216, 254, 24, 44, 59, 74, 151, 224, 27, 173, 74, 215, 116,
+            208, 20, 174, 2, 249, 150, 2, 8, 207, 122, 238, 164, 144,
+        ];
+        let workchain = 0;
+        let address = TonWallet::derive_address(
+            workchain,
+            WalletVersion::V4R2,
+            public_key,
+            DEFAULT_WALLET_ID,
+        )
+        .unwrap();
+
+        assert_eq!(
+            "EQA6W2spRJ6D+AUf6PHTfKJCib63ZJU6fK8BxHVp322UlZH3",
+            address.to_base64_std_flags(false, false)
+        );
     }
 }
