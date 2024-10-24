@@ -5,7 +5,7 @@ members = [
 resolver = "2"
 
 [workspace.package]
-version = "0.19.3"
+version = "0.19.4"
 edition = "2021"
 description = "Rust SDK for The Open Network"
 license = "MIT"

@@ -87,5 +87,19 @@ impl CommonMsgInfo {
         }
     }
 
+    pub fn new_internal_non_bounceable(dest: &TonAddress, value: &BigUint) -> Self {
+        CommonMsgInfo::InternalMessage(InternalMessage {
+            ihr_disabled: false,
+            bounce: false,
+            bounced: false,
+            src: TonAddress::NULL,
+            dest: dest.clone(),
+            value: value.clone(),
+            ihr_fee: ZERO_COINS.clone(),
+            fwd_fee: ZERO_COINS.clone(),
+            created_lt: 0,
+            created_at: 0,
+        })
+    }
     // todo impl others and think about better api
 }
