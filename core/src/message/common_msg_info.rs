@@ -89,7 +89,7 @@ impl CommonMsgInfo {
 
     pub fn new_internal_non_bounceable(dest: &TonAddress, value: &BigUint) -> Self {
         CommonMsgInfo::InternalMessage(InternalMessage {
-            ihr_disabled: false,
+            ihr_disabled: true,
             bounce: false,
             bounced: false,
             src: TonAddress::NULL,
