@@ -5,7 +5,7 @@ members = [
 resolver = "2"
 
 [workspace.package]
-version = "0.19.5"
+version = "0.20.3"
 edition = "2021"
 description = "Rust SDK for The Open Network"
 license = "MIT"
@@ -28,3 +28,11 @@ pbkdf2 = { version = "0.12", features = ["simple"] }
 thiserror = "1"
 tokio-test = "0.4"
 bitvec = "1.0"
+ton_liteapi = "0.1.0"
+adnl = "2.0"
+tonlib-sys = "=2024.9.0"
+tokio-tower = "0.6.0"
+tower = "0.5.1"
+
+# internal deps
+tonlib-core = { version = "0.20", path = "core" }

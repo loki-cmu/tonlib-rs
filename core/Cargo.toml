@@ -27,3 +27,4 @@ bitvec.workspace = true
 
 [dev-dependencies]
 tokio-test.workspace = true
+anyhow.workspace = true
